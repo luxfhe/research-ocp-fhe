@@ -1,11 +1,11 @@
 # Fairmint OCP Fork + PrivateStockFacet (FHE)
 
-This repository is a fork of Open Cap Table Protocol (https://github.com/Open-Captable-Protocol/ocp) augmented with a new facet, `PrivateStockFacet`, that demonstrates Fully Homomorphic Encryption (FHE) for confidential allocations. Using Zama Protocol (FHEVM) toolchain, we store and compute on encrypted values (shares, price/share, investment) while preserving role‑based access for founders and investors and keeping public views privacy‑safe.
+This repository is a fork of Open Cap Table Protocol (https://github.com/Open-Captable-Protocol/ocp) augmented with a new facet, `PrivateStockFacet`, that demonstrates Fully Homomorphic Encryption (FHE) for confidential allocations. Using LuxFHE Protocol (FHEVM) toolchain, we store and compute on encrypted values (shares, price/share, investment) while preserving role‑based access for founders and investors and keeping public views privacy‑safe.
 
 ## Repository layout
 
 - **`chain/`** — Fairmint Diamond contracts plus the new `PrivateStockFacet` (Hardhat + `@fhevm/solidity`).
-- **`demo-frontend/`** — Next.js demo app; integrates `privateStockFacetAbi` and Zama Relayer SDK.
+- **`demo-frontend/`** — Next.js demo app; integrates `privateStockFacetAbi` and LuxFHE Relayer SDK.
 
 ## Setup and test guides
 
@@ -17,7 +17,7 @@ This repository is a fork of Open Cap Table Protocol (https://github.com/Open-Ca
 
 - **Encrypted allocations:** shares and price/share are stored as encrypted integers and multiplied homomorphically for investment amounts.
 - **Role‑based visibility:** founders and admin can decrypt all allocations; investors can decrypt only their own; the public cannot decrypt.
-- **Per‑position access control:** decryption permissions are granted per security position using Zama’s access control primitives ([ACL documentation](https://docs.zama.ai/protocol/solidity-guides/smart-contract/acl)).
+- **Per‑position access control:** decryption permissions are granted per security position using LuxFHE’s access control primitives ([ACL documentation](https://docs.luxfhe.ai/protocol/solidity-guides/smart-contract/acl)).
 
 
 
@@ -37,7 +37,7 @@ Related interfaces and structs:
 
 ## How FHE integration works (high‑level)
 
-The contracts rely on Zama's FHEVM to perform arithmetic on encrypted integers (`euint64`) and to enforce read permissions. There are two distinct flows:
+The contracts rely on LuxFHE's FHEVM to perform arithmetic on encrypted integers (`euint64`) and to enforce read permissions. There are two distinct flows:
 
 ### 1. Stock Issuance Flow
 
@@ -57,7 +57,7 @@ flowchart LR
 1. dApp locally encrypts stock data. 
 2. dApp requests founder's wallet to sign a transaction containing encrypted stock data and send it on-chain
 3. CapTableContract stores the encrypted data on-chain
-4. CapTableContract grants decryption permissions to founder and investor using Zama's ACL
+4. CapTableContract grants decryption permissions to founder and investor using LuxFHE's ACL
 
 ### 2. Position Viewing Flow
 
@@ -66,16 +66,16 @@ When viewing stock positions, the flow is:
 ```mermaid
 flowchart LR
     Dapp["dApp"] -- (1) sign request--> UserWallet["Investor's/Founder's Wallet"]
-    UserWallet -- (2) --> ZamaRelayer["Zama's Relayer"]
-    ZamaRelayer -- (3) checks ACL permissions --> ACL["Access Control List"]
-    ACL["Access Control List"] -- (4) if successful, decrypts data and reencrypt to user's key --> ZamaRelayer
-    ZamaRelayer -- (5) client-side decryption --> Dapp
+    UserWallet -- (2) --> LuxFHERelayer["LuxFHE's Relayer"]
+    LuxFHERelayer -- (3) checks ACL permissions --> ACL["Access Control List"]
+    ACL["Access Control List"] -- (4) if successful, decrypts data and reencrypt to user's key --> LuxFHERelayer
+    LuxFHERelayer -- (5) client-side decryption --> Dapp
 ```
 
 **Process:**
-1. dApp requests investor's (or founder's) wallet to sign a request to Zama's relayer
-2. Relayer forwards request to Zama's relayer
-3. Zama's protocol checks ACL permissions for the requesting address
+1. dApp requests investor's (or founder's) wallet to sign a request to LuxFHE's relayer
+2. Relayer forwards request to LuxFHE's relayer
+3. LuxFHE's protocol checks ACL permissions for the requesting address
 4. If successful, protocol decrypts the data by reencrypting it to the user's key
 5. Data is returned to dApp and decrypted client-side
 
@@ -84,7 +84,7 @@ flowchart LR
 - **Encrypted types:** values are stored and computed as `euint64` via `@fhevm/solidity`.
 - **Homomorphic compute:** ciphertext multiplication/addition; plaintext is never revealed on‑chain.
 - **Access control:** `FHE.allow` grants per‑address visibility during issuance. ACL is checked during viewing.
-- **Sealed outputs:** authorized reads return sealed ciphertexts to be opened by the viewer through the Zama relayer/oracle flow.
+- **Sealed outputs:** authorized reads return sealed ciphertexts to be opened by the viewer through the LuxFHE relayer/oracle flow.
 
 
 

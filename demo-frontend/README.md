@@ -1,6 +1,6 @@
 ## Demo Frontend (FHE integration)
 
-This Next.js app demonstrates encrypted allocations using Zama’s Relayer SDK and the `PrivateStockFacet` on the Diamond. 
+This Next.js app demonstrates encrypted allocations using LuxFHE’s Relayer SDK and the `PrivateStockFacet` on the Diamond. 
 
 ## Getting Started
 

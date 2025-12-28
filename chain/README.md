@@ -48,9 +48,9 @@ npx hardhat run deploy/deployFactory.ts --network sepolia
 $ npm run lint:sol
 ```
 
-## Zama FHE integration (contracts)
+## LuxFHE FHE integration (contracts)
 
-This package integrates Zama FHEVM to store and compute on encrypted integers (`euint64`). The `PrivateStockFacet` configures the coprocessor and oracle, imports encrypted inputs, and sets per‑address read permissions.
+This package integrates LuxFHE FHEVM to store and compute on encrypted integers (`euint64`). The `PrivateStockFacet` configures the coprocessor and oracle, imports encrypted inputs, and sets per‑address read permissions.
 
 ### Initialization
 
@@ -58,8 +58,8 @@ In `PrivateStockFacet.initialize()` we configure the network coprocessor and the
 
 ```solidity
 function initialize() public initializer {
-    FHE.setCoprocessor(ZamaConfig.getSepoliaConfig());
-    FHE.setDecryptionOracle(ZamaConfig.getSepoliaOracleAddress());
+    FHE.setCoprocessor(LuxFHEConfig.getSepoliaConfig());
+    FHE.setDecryptionOracle(LuxFHEConfig.getSepoliaOracleAddress());
 }
 ```
 
@@ -67,7 +67,7 @@ Call `initialize()` once after adding the facet to the Diamond.
 
 ### Issuing encrypted private stock
 
-`issuePrivateStocks(IssuePrivateStockParams[] params, bytes inputProof)` expects encrypted inputs produced off‑chain using the Zama Relayer SDK:
+`issuePrivateStocks(IssuePrivateStockParams[] params, bytes inputProof)` expects encrypted inputs produced off‑chain using the LuxFHE Relayer SDK:
 
 ```solidity
 // Import external encrypted inputs using the proof from the SDK
@@ -98,4 +98,4 @@ High level:
 
 ### Network
 
-- Current config targets Sepolia via `ZamaConfig`. For other networks, replace the coprocessor and oracle configuration accordingly.
+- Current config targets Sepolia via `LuxFHEConfig`. For other networks, replace the coprocessor and oracle configuration accordingly.

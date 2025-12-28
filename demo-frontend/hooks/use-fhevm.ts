@@ -2,7 +2,7 @@
 import {useQuery} from '@tanstack/react-query';
 import {usePublicClient} from 'wagmi';
 import {useAccount} from '@/hooks/wagmi-viem-proxy/use-account';
-import {createInstance, initSDK, SepoliaConfig,} from '@zama-fhe/relayer-sdk/web';
+import {createInstance, initSDK, SepoliaConfig,} from '@luxfhe-fhe/relayer-sdk/web';
 import {clientToEthersTransport} from '@/lib/wagmi-etheres-adapter';
 
 const sepoliaChainId = 11155111; // Sepolia testnet chain ID
