@@ -1,0 +1,5 @@
+# ignore = dirty | means to ignore local changes in the submodule so we can have clean git commits 
+[submodule "ocf"]
+	path = ocf
+	url = https://github.com/Open-Cap-Table-Coalition/Open-Cap-Format-OCF
+	ignore = dirty # ignores local changes in the submodule

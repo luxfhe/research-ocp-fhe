@@ -1,0 +1,65 @@
+name: Integration Tests
+
+on:
+    pull_request:
+        branches:
+            - "*"
+            - "!main"
+            - "dev"
+        types: [opened, synchronize, reopened]
+
+jobs:
+    test:
+        name: Build and Test
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+              with:
+                  submodules: false # We'll initialize manually
+                  fetch-depth: 0
+
+            - name: Initialize and Update Submodules
+              run: |
+                  git submodule init
+                  git submodule update --init --recursive --force
+                  git submodule status
+
+            - name: Verify OCF Submodule
+              run: |
+                  echo "Current directory contents:"
+                  ls -la
+                  echo "\nSubmodule status:"
+                  git submodule status
+                  echo "\nTrying to update OCF specifically:"
+                  cd ocf || git submodule add https://github.com/Open-Cap-Table-Coalition/Open-Cap-Format-OCF ocf
+                  git submodule update --init --recursive ocf
+                  ls -la ocf/schema/objects/ || echo "OCF schema objects directory still not accessible"
+
+            # Install only ESLint dependencies
+            - name: Install ESLint Dependencies
+              run: |
+                  yarn add -D @eslint/js@latest \
+                          @typescript-eslint/eslint-plugin@latest \
+                          @typescript-eslint/parser@latest \
+                          eslint-plugin-import@latest \
+                          globals@latest
+
+            - name: Install Foundry
+              uses: foundry-rs/foundry-toolchain@v1
+              with:
+                  version: stable
+
+            - name: Run Forge Install Script
+              run: |
+                  chmod +x setup.sh && ./setup.sh
+
+            # Run all tests and checks
+            - name: Run Forge Tests
+              run: cd chain && forge test --summary
+
+            - name: Run ESLint
+              run: npx eslint "src/**/*.{js,ts,mjs,mts}"
+
+            - name: Check Formatting
+              run: npx prettier --check "src/**/*.{js,mjs,ts,mts,json,md}"
